@@ -4,8 +4,10 @@ import dash_html_components as html
 import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
+import plotly.express as px
 
 data = pd.read_csv("data-science/datasets/f_comex.csv", sep=';')
+data_d_via = pd.read_excel('data-science/datasets/d_via.xlsx')
 
 external_stylesheets = [
     {
@@ -93,6 +95,12 @@ app.layout = html.Div(
                     ),
                     className="card",
                 ),
+                html.Div(
+                    children=dcc.Graph(
+                        id="via-chart", config={"displayModeBar": False},
+                    ),
+                    className="card",
+                ),
             ],
             className="wrapper",
         ),
@@ -101,7 +109,10 @@ app.layout = html.Div(
 
 
 @app.callback(
-    Output("movements-chart", "figure"),
+    [
+        Output("movements-chart", "figure"),
+        Output("via-chart", "figure"),
+    ],
     [
         Input("year-filter", "value"),
         Input("movements-filter", "value"),
@@ -117,10 +128,17 @@ def update_charts(year, movement_type, product):
     filtered_data = data.loc[mask, :]
     data_normal = pd.crosstab([filtered_data['MOVIMENTACAO']], filtered_data['MES'], )
 
+    old= list(data_d_via['CO_VIA'])
+    new = list(data_d_via['NO_VIA'])
+    via_filtered = filtered_data['COD_VIA'].replace(old, new)
+    via_filtered = via_filtered.to_frame().rename(columns={'COD_VIA': 'VIA'})
+    result = pd.concat([filtered_data, via_filtered], axis=1)
+
     movements_hist_figure = {
         "data": [
             {"y": pd.Series(data_normal.values[0]),
-             "x": ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'],
+             "x": ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV',
+                   'DEZ'],
              "type": "bar",
              "hovertemplate": "%{y:.2f}<extra></extra>",
              },
@@ -138,7 +156,35 @@ def update_charts(year, movement_type, product):
         },
     }
 
-    return movements_hist_figure
+    via_figure = {
+        "data": [
+            {
+                "values": result['VL_QUANTIDADE'],
+                "labels": result['VIA'],
+                "type": "pie",
+                "insidetextfont": {"color": "white"},
+                "texttemplate": "%{percent:.2%f}",
+            }
+        ],
+        "layout": {
+            "title": {
+                "text": "Utilização da VIA",
+                "x": 0.05,
+                "xanchor": "left",
+            },
+            "margin": {
+                "l": 30,
+                "r": 0,
+                "b": 30,
+                "t": 30,
+            },
+
+            "legend": {"x": 0, "y": 1},
+    },
+
+    }
+
+    return movements_hist_figure, via_figure
 
 
 if __name__ == "__main__":
