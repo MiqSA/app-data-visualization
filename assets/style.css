@@ -1,4 +1,4 @@
-body {
+ body {
     font-family: "Lato", sans-serif;
     margin: 0;
     background-color: #F7F7F7;
@@ -53,6 +53,10 @@ body {
     padding-right: 10px;
     padding-left: 10px;
     margin-top: 32px;
+}
+
+.table {
+   font-size: 18px;
 }
 
 .card {

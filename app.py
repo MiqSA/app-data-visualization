@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import numpy as np
+import dash_table
 from dash.dependencies import Output, Input
 
 data = pd.read_csv("data-science/datasets/f_comex.csv", sep=';')
@@ -95,6 +96,7 @@ app.layout = html.Div(
                     className="header-description-total",
                 ),
             ],
+            className="wrapper"
         ),
 
         html.Div(
@@ -114,6 +116,19 @@ app.layout = html.Div(
             ],
             className="wrapper",
         ),
+
+        html.Div(
+            children=[
+                html.H2(children="Total por Estado", className="header-total"),
+                html.Br(),
+                html.Div(id="table-states", className="table",),
+
+            ],
+            className="wrapper",
+        ),
+        html.Br(),
+        html.Br(),
+        html.Br(),
     ]
 )
 
@@ -123,6 +138,7 @@ app.layout = html.Div(
         Output('card_num1', 'children'),
         Output("movements-chart", "figure"),
         Output("via-chart", "figure"),
+        Output('table-states', 'children'),
     ],
     [
         Input("year-filter", "value"),
@@ -145,6 +161,15 @@ def update_charts(year, movement_type, product):
     via_filtered = via_filtered.to_frame().rename(columns={'COD_VIA': 'VIA'})
     result = pd.concat([filtered_data, via_filtered], axis=1)
     total = sum(filtered_data['VL_QUANTIDADE'])
+
+    total_state = filtered_data['SG_UF'].value_counts(normalize=True)
+    total_normal = total_state.to_frame()
+    total_state = filtered_data['SG_UF'].value_counts()
+    total_state = total_state.to_frame()
+    total_state['INFLUENCIA'] = total_normal
+    total_state.reset_index(level=0, inplace=True)
+    total_state.rename(columns={'index': 'ESTADO', 'SG_UF': 'VALOR'}, inplace=True)
+    total_state['INFLUENCIA'] = total_state['INFLUENCIA'].apply(lambda x: f'{round(x * 100, 2)}%')
 
     movements_hist_figure = {
         "data": [
@@ -189,7 +214,33 @@ def update_charts(year, movement_type, product):
 
     }
 
-    return total, movements_hist_figure, via_figure
+    table = dash_table.DataTable(
+        id='table',
+        columns=[{"name": i, "id": i} for i in total_state.columns],
+        data=total_state.to_dict('records'),
+        style_header={'backgroundColor': 'rgb(0, 158, 225)',
+                      'color': 'white'
+                      },
+        style_cell={
+            'backgroundColor': 'rgb(230, 230, 255)',
+            'color': 'black'
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': 'rgb(248, 248, 248)',
+                'color': 'black'
+            }
+        ],
+        style_cell_conditional=[
+            {
+                'if': {'column_id': c},
+                'textAlign': 'center'
+            } for c in ['ESTADO', 'VALOR', 'INFLUENCIA']
+        ],
+    )
+
+    return total, movements_hist_figure, via_figure, table
 
 
 if __name__ == "__main__":
