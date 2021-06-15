@@ -4,7 +4,6 @@ import dash_html_components as html
 import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
-import plotly.express as px
 
 data = pd.read_csv("data-science/datasets/f_comex.csv", sep=';')
 data_d_via = pd.read_excel('data-science/datasets/d_via.xlsx')
@@ -87,6 +86,17 @@ app.layout = html.Div(
             className="menu",
         ),
 
+        html.Br(),
+        html.Div(
+            children=[
+                html.H1("Card title", className="header-total", id="card_num1"),
+                html.P(
+                    children="Total Movimentado",
+                    className="header-description-total",
+                ),
+            ],
+        ),
+
         html.Div(
             children=[
                 html.Div(
@@ -110,6 +120,7 @@ app.layout = html.Div(
 
 @app.callback(
     [
+        Output('card_num1', 'children'),
         Output("movements-chart", "figure"),
         Output("via-chart", "figure"),
     ],
@@ -128,11 +139,12 @@ def update_charts(year, movement_type, product):
     filtered_data = data.loc[mask, :]
     data_normal = pd.crosstab([filtered_data['MOVIMENTACAO']], filtered_data['MES'], )
 
-    old= list(data_d_via['CO_VIA'])
+    old = list(data_d_via['CO_VIA'])
     new = list(data_d_via['NO_VIA'])
     via_filtered = filtered_data['COD_VIA'].replace(old, new)
     via_filtered = via_filtered.to_frame().rename(columns={'COD_VIA': 'VIA'})
     result = pd.concat([filtered_data, via_filtered], axis=1)
+    total = sum(filtered_data['VL_QUANTIDADE'])
 
     movements_hist_figure = {
         "data": [
@@ -172,19 +184,12 @@ def update_charts(year, movement_type, product):
                 "x": 0.05,
                 "xanchor": "left",
             },
-            "margin": {
-                "l": 30,
-                "r": 0,
-                "b": 30,
-                "t": 30,
-            },
-
-            "legend": {"x": 0, "y": 1},
-    },
+            "legend": {"x": 0, "y": 0},
+        },
 
     }
 
-    return movements_hist_figure, via_figure
+    return total, movements_hist_figure, via_figure
 
 
 if __name__ == "__main__":

@@ -24,8 +24,23 @@ body {
     margin: 0 auto;
 }
 
+.header-total {
+    color: #3d89cc;
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    margin: 0 auto;
+}
+
 .header-description {
     color: #CFCFCF;
+    margin: 4px auto;
+    text-align: center;
+    max-width: 384px;
+}
+
+.header-description-total {
+    color: #444e57;
     margin: 4px auto;
     text-align: center;
     max-width: 384px;
