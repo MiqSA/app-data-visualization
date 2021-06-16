@@ -1,0 +1,4 @@
+venv
+__py_cache__
+.DS_Store
+.idea
