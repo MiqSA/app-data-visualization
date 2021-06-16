@@ -7,8 +7,15 @@ from dash.dependencies import Output, Input
 import requests
 from pandas import json_normalize
 
-
+# Databases
 data = pd.read_csv("data-science/datasets/f_comex.csv", sep=';')
+# API products
+url = 'http://127.0.0.1:5000/products'
+data_url = requests.get(url)
+# Store the API response in a variable.
+available_data = data_url.json()
+data_d_sh2 = json_normalize(available_data)
+
 
 external_stylesheets = [
     {
@@ -75,15 +82,16 @@ app.layout = html.Div(
                             id="product-filter",
                             options=[
                                 {"label": product, "value": product}
-                                for product in data.COD_NCM.unique()
+                                for product in data_d_sh2.NO_NCM_POR.apply(lambda x: x[0:30]+' ...' if len(x)>=30 else x).unique()
                             ],
-                            value=39269090,
+                            value='Outras obras de plásticos',
                             clearable=False,
                             searchable=False,
                             className="dropdown",
                         ),
                     ],
                 ),
+
             ],
             className="menu",
         ),
@@ -148,27 +156,30 @@ app.layout = html.Div(
     ],
 )
 def update_charts(year, movement_type, product):
-    # API products
-    url = 'http://127.0.0.1:5000/products'
-    data_url = requests.get(url)
-    # # Store the API response in a variable.
-    available_data = data_url.json()
-    data_d_sh2 = json_normalize(available_data)
-
     # API vias
     url = 'http://127.0.0.1:5000/vias'
     data_url = requests.get(url)
-    # # Store the API response in a variable.
+    # Store the API response in a variable.
     available_data = data_url.json()
     data_d_via = json_normalize(available_data)
+
+    product_list = data_d_sh2.NO_NCM_POR.apply(lambda x: x[0:30] + ' ...' if len(x) >= 30 else x)
+    product_list = product_list.to_frame().rename(columns={'NO_NCM_POR': 'PRODUCT_LIST'})
+    new_data_d_sh2 = pd.concat([data_d_sh2, product_list], axis=1)
+    product_find = new_data_d_sh2.query(f"PRODUCT_LIST == '{product}'")['CO_NCM']
+
+    # print('\nproduct_find', product_find)
+
+    product_NCM = int(product_find)
 
     mask = (
             (data.ANO == year)
             & (data.MOVIMENTACAO == movement_type)
-            & (data.COD_NCM == product)
+            & (data.COD_NCM == product_NCM)
     )
     filtered_data = data.loc[mask, :]
     data_normal = pd.crosstab([filtered_data['MOVIMENTACAO']], filtered_data['MES'], )
+
 
     old = list(data_d_via['CO_VIA'].apply(lambda x: int(x)))
     new = list(data_d_via['NO_VIA'])
