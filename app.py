@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import numpy as np
-import dash_table
 from dash.dependencies import Output, Input
 
 data = pd.read_csv("data-science/datasets/f_comex.csv", sep=';')
@@ -90,7 +89,7 @@ app.layout = html.Div(
         html.Br(),
         html.Div(
             children=[
-                html.H1("Card title", className="header-total", id="card_num1"),
+                html.H1(className="header-total", id="card_num1"),
                 html.P(
                     children="Total Movimentado",
                     className="header-description-total",
@@ -116,12 +115,11 @@ app.layout = html.Div(
             ],
             className="wrapper",
         ),
-
         html.Div(
             children=[
                 html.H2(children="Total por Estado", className="header-total"),
                 html.Br(),
-                html.Div(id="table-states", className="table",),
+                html.Div(id="table-states", className="table-wrapper", ),
 
             ],
             className="wrapper",
@@ -139,6 +137,7 @@ app.layout = html.Div(
         Output("movements-chart", "figure"),
         Output("via-chart", "figure"),
         Output('table-states', 'children'),
+
     ],
     [
         Input("year-filter", "value"),
@@ -174,8 +173,7 @@ def update_charts(year, movement_type, product):
     movements_hist_figure = {
         "data": [
             {"y": pd.Series(data_normal.values[0]),
-             "x": ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV',
-                   'DEZ'],
+             "x": ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'],
              "type": "bar",
              "hovertemplate": "%{y:.2f}<extra></extra>",
              },
@@ -213,32 +211,29 @@ def update_charts(year, movement_type, product):
         },
 
     }
+    table = html.Table(className="table-wrapper",
+                       children=[
+                           html.Thead(
+                               html.Tr(
+                                   children=[
+                                       html.Th(col.title()) for col in total_state.columns.values],
+                                   style={'background-color': 'rgb(0, 158, 225)',
+                                          'font-size': 18,
+                                          'text-align': 'center', },
 
-    table = dash_table.DataTable(
-        id='table',
-        columns=[{"name": i, "id": i} for i in total_state.columns],
-        data=total_state.to_dict('records'),
-        style_header={'backgroundColor': 'rgb(0, 158, 225)',
-                      'color': 'white'
-                      },
-        style_cell={
-            'backgroundColor': 'rgb(230, 230, 255)',
-            'color': 'black'
-        },
-        style_data_conditional=[
-            {
-                'if': {'row_index': 'odd'},
-                'backgroundColor': 'rgb(248, 248, 248)',
-                'color': 'black'
-            }
-        ],
-        style_cell_conditional=[
-            {
-                'if': {'column_id': c},
-                'textAlign': 'center'
-            } for c in ['ESTADO', 'VALOR', 'INFLUENCIA']
-        ],
-    )
+                               )
+                           ),
+                           html.Tbody(
+                               [
+
+                                   html.Tr(
+                                       children=[
+                                           html.Td(data) for data in d
+                                       ],
+                                   )
+                                   for d in total_state.values.tolist()])
+                       ]
+                       )
 
     return total, movements_hist_figure, via_figure, table
 
