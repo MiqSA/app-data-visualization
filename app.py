@@ -4,9 +4,11 @@ import dash_html_components as html
 import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
+import requests
+from pandas import json_normalize
+
 
 data = pd.read_csv("data-science/datasets/f_comex.csv", sep=';')
-data_d_via = pd.read_excel('data-science/datasets/d_via.xlsx')
 
 external_stylesheets = [
     {
@@ -146,6 +148,12 @@ app.layout = html.Div(
     ],
 )
 def update_charts(year, movement_type, product):
+    url = 'http://127.0.0.1:5000/vias'
+    data_url = requests.get(url)
+    # # Store the API response in a variable.
+    available_data = data_url.json()
+    data_d_via = json_normalize(available_data)
+
     mask = (
             (data.ANO == year)
             & (data.MOVIMENTACAO == movement_type)
@@ -154,7 +162,7 @@ def update_charts(year, movement_type, product):
     filtered_data = data.loc[mask, :]
     data_normal = pd.crosstab([filtered_data['MOVIMENTACAO']], filtered_data['MES'], )
 
-    old = list(data_d_via['CO_VIA'])
+    old = list(data_d_via['CO_VIA'].apply(lambda x: int(x)))
     new = list(data_d_via['NO_VIA'])
     via_filtered = filtered_data['COD_VIA'].replace(old, new)
     via_filtered = via_filtered.to_frame().rename(columns={'COD_VIA': 'VIA'})
