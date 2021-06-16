@@ -148,6 +148,14 @@ app.layout = html.Div(
     ],
 )
 def update_charts(year, movement_type, product):
+    # API products
+    url = 'http://127.0.0.1:5000/products'
+    data_url = requests.get(url)
+    # # Store the API response in a variable.
+    available_data = data_url.json()
+    data_d_sh2 = json_normalize(available_data)
+
+    # API vias
     url = 'http://127.0.0.1:5000/vias'
     data_url = requests.get(url)
     # # Store the API response in a variable.
