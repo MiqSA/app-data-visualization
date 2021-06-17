@@ -54,7 +54,49 @@ Depois basta em ir 'Kernel' e 'Restart & Run All'. Após isso o bot fará tudo s
 - [Flask](https://flask.palletsprojects.com/en/2.0.x/)
 - [Python](https://www.python.org/)
 
+## Como Utilizar?
 
+Para clonar essa aplicação, você precisará ter instalado em seu computador o [Git](https://git-scm.com). Ademais, você precisa do [Python](https://www.python.org/) instalado para funcionar a aplicação. Do ser terminal digite:
+
+```bash
+# Clonar esse repositório
+$ git clone https://github.com/MiqSA/app-data-visualization.git
+
+# Entrar no pasta do projeto
+$ cd app-data-visualization
+
+# Entrar no pasta da API
+$ cd api
+
+# Criar ambiente virtual da API
+$ python3 -m venv venv
+
+# Ativar ambiente virtual
+$ source venv/bin/activate
+
+# Instalar dependências para aplicação de dashboard
+$ pip install -r requirements.txt 
+
+# API REST estará disponível em http://127.0.0.1:5000/
+
+# Em outra janela do terminal vá para pasta do diretório raiz do projeto
+ $ cd app-data-visualization
+
+# Criar ambiente virtual da aplicação
+$ python3 -m venv venv
+
+# Ativar ambiente virtual
+$ source venv/bin/activate
+
+# Instalar dependências para aplicação de dashboard
+$ pip install -r requirements.txt 
+
+# Iniciar app
+$ python app.py 
+
+# A aplicação estará disponível em http://127.0.0.1:8050/
+
+```
 
 ## Outras Observações
 Foram utilizadas algumas bases de dados, siga as seguintes intruções para as utilizar:
