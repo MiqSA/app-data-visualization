@@ -9,6 +9,7 @@ api = Api(app)
 
 api.add_resource(Vias, '/vias')
 api.add_resource(Products, '/products')
+api.add_resource(Products, '/comex')
 
 if __name__ == '__main__':
     app.run(debug=True)
