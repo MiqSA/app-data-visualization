@@ -8,7 +8,7 @@ import requests
 from pandas import json_normalize
 
 # Databases
-data = pd.read_csv("data-science/datasets/f_comex.csv", sep=';')
+data = pd.read_csv("datasets/f_comex.csv", sep=';')
 # API products
 url = 'http://127.0.0.1:5000/products'
 data_url = requests.get(url)
@@ -104,6 +104,7 @@ app.layout = html.Div(
                     children="Total Movimentado",
                     className="header-description-total",
                 ),
+                html.P(className="header-description-total", id="card_num2"),
             ],
             className="wrapper"
         ),
@@ -144,6 +145,7 @@ app.layout = html.Div(
 @app.callback(
     [
         Output('card_num1', 'children'),
+        Output('card_num2', 'children'),
         Output("movements-chart", "figure"),
         Output("via-chart", "figure"),
         Output('table-states', 'children'),
@@ -167,6 +169,8 @@ def update_charts(year, movement_type, product):
     product_list = product_list.to_frame().rename(columns={'NO_NCM_POR': 'PRODUCT_LIST'})
     new_data_d_sh2 = pd.concat([data_d_sh2, product_list], axis=1)
     product_find = new_data_d_sh2.query(f"PRODUCT_LIST == '{product}'")['CO_NCM']
+
+    product_name = 'Produto: '+ new_data_d_sh2.query(f"PRODUCT_LIST == '{product}'")['NO_NCM_POR']
 
     # print('\nproduct_find', product_find)
 
@@ -262,7 +266,7 @@ def update_charts(year, movement_type, product):
                        ]
                        )
 
-    return total, movements_hist_figure, via_figure, table
+    return total, product_name, movements_hist_figure, via_figure, table
 
 
 if __name__ == "__main__":
