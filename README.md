@@ -77,6 +77,9 @@ $ source venv/bin/activate
 # Instalar dependências para aplicação de dashboard
 $ pip install -r requirements.txt 
 
+# Iniciar API
+$ python app.py 
+
 # API REST estará disponível em http://127.0.0.1:5000/
 
 # Em outra janela do terminal vá para pasta do diretório raiz do projeto
@@ -99,6 +102,12 @@ $ python app.py
 ```
 
 ## Outras Observações
+Algumas melhorias nesta aplicação, podem ser sugeridas:
+- Serviço de autenticação da API;
+- Paginação para o endpoint /comex;
+- Alguns tratamentos de dados já na API ao invés do DASH;
+- Criar models para melhorar manutenção do código.
+
 Foram utilizadas algumas bases de dados, siga as seguintes intruções para as utilizar:
 
 1. Acessar as bases por meio do link:
@@ -107,3 +116,4 @@ https://drive.google.com/drive/u/1/folders/1GzRgHjeUFPkrseYln9uwISmhbiys6rUj
 2. Fazer o download dos arquivos.
 
 3. Colocar arquivos na pasta 'datasets' na raiz do projeto.
+
