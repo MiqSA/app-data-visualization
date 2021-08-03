@@ -6,7 +6,6 @@ import json
 class Vias(Resource):
     def get(self):
         data_d_via = pd.read_excel('../datasets/d_via.xlsx')
-        data_d_via['CO_VIA'] = data_d_via['CO_VIA'].apply(lambda x: str(x))
         data_d_via = data_d_via.to_json(orient='records')
         data_d_via = json.loads(data_d_via)
         return data_d_via
