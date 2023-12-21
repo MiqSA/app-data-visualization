@@ -1,14 +1,15 @@
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc, html
 import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
 import requests
 from pandas import json_normalize
+from datetime import datetime
+from decimal import Decimal
 
 # Databases
-data = pd.read_csv("datasets/f_comex.csv", sep=';')
+data = pd.read_csv("datasets/f_comex copy.csv", sep=';')
 # API products
 url = 'http://127.0.0.1:5000/products'
 data_url = requests.get(url)
@@ -26,7 +27,7 @@ external_stylesheets = [
 ]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Análise do Comércio Exterior"
-
+current_year = datetime.now().year
 app.layout = html.Div(
     children=[
         html.Div(
@@ -36,7 +37,7 @@ app.layout = html.Div(
                     children="Análise do Comércio Exterior", className="header-title"
                 ),
                 html.P(
-                    children="Análise das movimentações do comércio exterior entre 2018 a 2020 com o Brasil.",
+                    children=f"Análise das movimentações do comércio exterior entre {current_year-2} a {current_year} com o Brasil.",
                     className="header-description",
                 ),
             ],
@@ -53,7 +54,7 @@ app.layout = html.Div(
                                 {"label": year, "value": year}
                                 for year in np.sort(data.ANO.unique())
                             ],
-                            value=2020,
+                            value=current_year,
                             clearable=False,
                             className="dropdown",
                         ),
@@ -266,7 +267,7 @@ def update_charts(year, movement_type, product):
                        ]
                        )
 
-    return total, product_name, movements_hist_figure, via_figure, table
+    return Decimal(total), product_name, movements_hist_figure, via_figure, table
 
 
 if __name__ == "__main__":

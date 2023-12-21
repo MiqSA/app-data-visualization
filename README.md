@@ -65,9 +65,6 @@ $ git clone https://github.com/MiqSA/app-data-visualization.git
 # Entrar no pasta do projeto
 $ cd app-data-visualization
 
-# Entrar no pasta da API
-$ cd api
-
 # Criar ambiente virtual da API
 $ python3 -m venv venv
 
@@ -76,6 +73,9 @@ $ source venv/bin/activate
 
 # Instalar dependências para aplicação de dashboard
 $ pip install -r requirements.txt 
+
+# Entrar no pasta da API
+$ cd api
 
 # Iniciar API
 $ python app.py 
